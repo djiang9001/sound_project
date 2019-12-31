@@ -48,6 +48,9 @@ struct WAVFile {
 
 	uint16_t bytesPerSample;// bytes needed to hold each sample. bitsPerSample / 8 rounded up
 	uint32_t numSamples;
+
+	//vector of doubles that will be used for calculations
+	std::vector<double> normData;
 	
 	WAVFile(std::string path);
 	virtual ~WAVFile();
@@ -55,14 +58,15 @@ struct WAVFile {
 	//assumes that all input integers are multiples of 8 bit integers, and that
 	//bytesPerSample is the size of the input integer.
 	template<typename T> void getSample(T *dest, const size_t &i) {
-		if (typeid(T) != typeid(double)) {
-			*dest = 0;
-			std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
-			castInt(dest, bytesPerSample);
-		} else {
-			//we just use doubles and convert the sig and man manually
-			
-		}
+		*dest = 0;
+		std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
+		castInt(dest, bytesPerSample);
+	}
+	
+	template<typename T> void getFloatSample (T *dest, const size_t &i) {
+		*dest = 0;
+		std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
+
 	}
 	// performs fn on sample start inclusive to sample end exclusive
 	template<typename T, typename F> void mapNumData(const size_t &start, const size_t &end, F fn) {
@@ -70,12 +74,50 @@ struct WAVFile {
 			T sample;
 			getSample<T>(&sample, i);
 			fn(&sample);
-		}	
+		}
+	}
+
+	template<typename T, typename F> void mapFloatData(const size_t &start, const size_t &end, F fn) {
+		for (size_t i = start; i < end; ++i) {
+			T sample;
+			getFloatSample<T>(&sample, i);
+			fn(&sample);
+		}
+	}
+
+	template <typename F> void mapData(const size_t &start, const size_t &end, F fn) {
+	        //size_t i = 0;
+	        if (audioFormat == 1) {
+	                if (bitsPerSample <= 8) {
+	                        mapNumData<uint8_t>(0, numSamples, fn);
+	                } else if (bitsPerSample <= 16) {
+	                        mapNumData<int16_t>(0, numSamples, fn);
+	                } else if (bitsPerSample <= 32) {
+	                        mapNumData<int32_t>(0, numSamples, fn);
+	                } else if (bitsPerSample <= 64) {
+	                        mapNumData<int64_t>(0, numSamples, fn);
+	                } else {        
+	                        throw "bytesPerSample too big";
+	                }               
+	        } else if (audioFormat == 3) {
+	                if (bitsPerSample == 32) {
+	                        mapFloatData<float>(0, numSamples, fn);
+	                } else if (bitsPerSample == 64) {
+	                        mapFloatData<double>(0, numSamples, fn);
+	                } else {
+	                        throw "Unsupported floating point format";
+	                }
+	        } else {
+	                throw "Unsupported format";
+	                return;
+	        }
+	
 	}
 
 	void printHeader();
 	void printData();
 	void printNumData();
+	void normalizeData();
 };
 
 #endif

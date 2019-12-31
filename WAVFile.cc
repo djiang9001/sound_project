@@ -48,6 +48,7 @@ WAVFile::WAVFile(std::string path): path{path} {
 		fact[3] = 't';
 		f.read((char*)&factSize, 4);
 		f.read((char*)&numSamplesPerChannel, 4);
+		//numSamplesPerChannel might be numSamples * bytesPerSample instead
 		subchunkID2[0] = 0;
 		f.read(subchunkID2, 4);
 	} else {
@@ -66,6 +67,7 @@ WAVFile::WAVFile(std::string path): path{path} {
 	printHeader();
 	printData();
 	printNumData();
+	normalizeData();
 }
 
 void WAVFile::printHeader() {
@@ -118,6 +120,7 @@ void WAVFile::printData() {
 }
 
 void WAVFile::printNumData() {
+	/*
 	size_t i = 0;
 	if (audioFormat == 1) {
 		if (bitsPerSample <= 8) {
@@ -148,17 +151,41 @@ void WAVFile::printNumData() {
 			throw "bytesPerSample too big";
 		}
 	} else if (audioFormat == 3) {
-		/*
-		for (size_t i = 0; i < subchunkSize2 / (bitsPerSample / 8); ++i) {
-			float *p = (float*)(&(data[0]) + i * (bitsPerSample / 8));
-			std::cout << std::to_string(*p) << " ";
-			if ((i + 1) % 8 == 0) std::cout << std::endl;
-		}*/
+		if (bitsPerSample == 32) {
+			mapFloatData<float>(0, numSamples, [i](float *n) mutable {
+				std::cout << std::to_string(*n) << " ";
+				if ((i + 1) % 8 == 0) std::cout << std::endl;
+				++i;
+			});
+		} else if (bitsPerSample == 64) {
+			mapFloatData<double>(0, numSamples, [i](double *n) mutable {
+				std::cout << std::to_string(*n) << " ";
+				if ((i + 1) % 8 == 0) std::cout << std::endl;
+				++i;
+			});
+		} else {
+			throw "Unsupported floating point format";
+		}
 	} else {
 		std::cout << "Unsupported format" << std::endl;
 		return;
-	}
+	}*/
+	int i = 0;
+	mapData(0, numSamples, [i](auto *n) mutable {
+		std::cout << std::to_string(*n) << " ";
+		if ((i + 1) % 8 == 0) std::cout << std::endl;
+		++i;
+	}); 
 	
+}
+
+void WAVFile::normalizeData() {
+	mapData(0, numSamples, [this](auto *n) mutable {
+		// need to first normalize the value, which is based on bitsPerSample
+		normData.push_back(*n);
+		std::cout << std::to_string(normData.back()) << std::endl;
+	});
+	std::cout << std::to_string(normData.size()) << std::endl;
 }
 
 WAVFile::~WAVFile() {}
