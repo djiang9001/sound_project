@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 
 #include "ReadInt.h"
 
@@ -15,6 +16,27 @@
 // Assumes the file is a PCM WAVFile
 
 struct WAVFile {
+
+	static const uint8_t MAX_UINT8_WAV = 255;
+	static const uint8_t MIN_UINT8_WAV = 0;
+
+	static const int16_t MAX_INT16_WAV = 32767;
+	//int16_t MIN_INT16_WAV = -32768;
+
+	static const int32_t MAX_INT24_WAV = 8388607;
+	//int32_t MIN_INT24_WAV = -8388608;
+
+	static const int32_t MAX_INT32_WAV = 2147483647;
+	//int32_t MIN_INT32_WAV = -214748348;
+
+	static const int64_t MAX_INT64_WAV = 9223372036854775807;
+	//int64_t MIN_INT64_WAV = -9223372036854775808;
+
+	static constexpr const double F_8 = (double) 1 / MAX_UINT8_WAV;
+	static constexpr const double F_16 = (double) 1 / MAX_INT16_WAV;
+	static constexpr const double F_24 = (double) 1 / MAX_INT24_WAV;
+	static constexpr const double F_32 = (double) 1 / MAX_INT32_WAV;
+	static constexpr const double F_64 = (double) 1 / MAX_INT64_WAV;
 
 	std::string path;
 	
@@ -114,6 +136,12 @@ struct WAVFile {
 	
 	}
 
+	template<typename T> double normedData (const T &n) {
+		double toReturn = static_cast<double>(n) * getFactor();
+		return toReturn;
+	}
+
+	double getFactor();
 	void printHeader();
 	void printData();
 	void printNumData();

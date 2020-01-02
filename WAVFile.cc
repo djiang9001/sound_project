@@ -182,10 +182,20 @@ void WAVFile::printNumData() {
 void WAVFile::normalizeData() {
 	mapData(0, numSamples, [this](auto *n) mutable {
 		// need to first normalize the value, which is based on bitsPerSample
-		normData.push_back(*n);
+		if (audioFormat == 1) normData.push_back(normedData(*n));
+		else normData.push_back(*n);
 		std::cout << std::to_string(normData.back()) << std::endl;
 	});
 	std::cout << std::to_string(normData.size()) << std::endl;
+}
+
+double WAVFile::getFactor() {
+	if (bytesPerSample == 1) return F_8;
+	else if (bytesPerSample == 2) return F_16;
+	else if (bytesPerSample == 3) return F_24;
+	else if (bytesPerSample == 4) return F_32;
+	else if (bytesPerSample == 8) return F_64;
+	else throw "Invalid bytesPerSample";
 }
 
 WAVFile::~WAVFile() {}
