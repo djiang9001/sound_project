@@ -182,7 +182,7 @@ void WAVFile::printNumData() {
 void WAVFile::normalizeData() {
 	mapData(0, numSamples, [this](auto *n) mutable {
 		// need to first normalize the value, which is based on bitsPerSample
-		if (audioFormat == 1) normData.push_back(normedData(*n));
+		if (audioFormat == 1) normData.push_back(normedSample(*n));
 		else normData.push_back(*n);
 		std::cout << std::to_string(normData.back()) << std::endl;
 	});

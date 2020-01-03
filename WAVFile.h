@@ -13,9 +13,13 @@
 //   will have classes that inherit from WAVFile, and probably will be the same
 //   but will convert all the data in the destructor to be compatible
 
-// Assumes the file is a PCM WAVFile
+// Assumes the file is an 8, 12/16, 16, 24, 32, 64-bit PCM WAVFile or a 32, 64-bit IEEE float WAVFile
+// Assumes that double, float are 64, 32-bit and follow IEEE standards
 
+// On construction, populates normData vector with double values from -1.0 to 1.0
 struct WAVFile {
+
+	// Conversion to float constants
 
 	static const uint8_t MAX_UINT8_WAV = 255;
 	static const uint8_t MIN_UINT8_WAV = 0;
@@ -38,8 +42,12 @@ struct WAVFile {
 	static constexpr const double F_32 = (double) 1 / MAX_INT32_WAV;
 	static constexpr const double F_64 = (double) 1 / MAX_INT64_WAV;
 
+	// file name/path
+	
 	std::string path;
 	
+	// WAV header data
+
 	char chunkID[4];
 	uint32_t chunkSize;
 	char format[4];
@@ -52,8 +60,7 @@ struct WAVFile {
 	uint32_t byteRate;
 	uint16_t blockAlign;
 	uint16_t bitsPerSample;
-	// extraParams skipped
-
+	
 	uint16_t extSize;
 	uint16_t validBitsPerSample;
 	uint32_t channelMask;
@@ -68,14 +75,19 @@ struct WAVFile {
 	uint32_t subchunkSize2;
 	std::vector<unsigned char> data;
 
+	// Convenient data calculated from header data
+
 	uint16_t bytesPerSample;// bytes needed to hold each sample. bitsPerSample / 8 rounded up
 	uint32_t numSamples;
 
-	//vector of doubles that will be used for calculations
+
+	// vector of normed (-1.0, 1.0) doubles that will be used for calculations
 	std::vector<double> normData;
 	
 	WAVFile(std::string path);
 	virtual ~WAVFile();
+
+	// Template functions for reading the data from the WAV, templated on integer type and/or fn
 
 	//assumes that all input integers are multiples of 8 bit integers, and that
 	//bytesPerSample is the size of the input integer.
@@ -136,10 +148,12 @@ struct WAVFile {
 	
 	}
 
-	template<typename T> double normedData (const T &n) {
+	template<typename T> double normedSample(const T &n) {
 		double toReturn = static_cast<double>(n) * getFactor();
 		return toReturn;
 	}
+
+	// Defined in .cc
 
 	double getFactor();
 	void printHeader();
