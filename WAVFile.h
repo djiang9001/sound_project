@@ -6,6 +6,9 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <functional>
+#include <map>
+#include <fstream>
 
 #include "ReadInt.h"
 
@@ -15,6 +18,7 @@
 
 // Assumes the file is an 8, 12/16, 16, 24, 32, 64-bit PCM WAVFile or a 32, 64-bit IEEE float WAVFile
 // Assumes that double, float are 64, 32-bit and follow IEEE standards
+// Assumes that the machine has little endian architecture
 
 // On construction, populates normData vector with double values from -1.0 to 1.0
 struct WAVFile {
@@ -45,6 +49,7 @@ struct WAVFile {
 	// file name/path
 	
 	std::string path;
+	std::ifstream f;
 	
 	// WAV header data
 
@@ -80,12 +85,33 @@ struct WAVFile {
 	uint16_t bytesPerSample;// bytes needed to hold each sample. bitsPerSample / 8 rounded up
 	uint32_t numSamples;
 
+	// temp vars for holding input
+	char tempID[4];
+	uint32_t tempSize;
+	
+	// reading functions and the map
 
+	void read_fmt();
+	void read_fact();
+	void read_data();
+	void read_LIST();
+
+	typedef void(WAVFile::*p_func)();
+
+	const std::map<std::string, p_func> func_map = {
+		{"fmt ", &WAVFile::read_fmt},
+		{"fact", &WAVFile::read_fact},
+		{"data", &WAVFile::read_data},
+		{"LIST", &WAVFile::read_LIST}
+	};
+	
 	// vector of normed (-1.0, 1.0) doubles that will be used for calculations
 	std::vector<double> normData;
 	
 	WAVFile(std::string path);
 	virtual ~WAVFile();
+
+	void readChunk(); //reads the next chunk, skips if unrecognized, or writes to vars
 
 	// Template functions for reading the data from the WAV, templated on integer type and/or fn
 

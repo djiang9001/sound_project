@@ -10,7 +10,7 @@ Spectrogram::Spectrogram(const std::vector<double> *waveform, int sampleRate, in
 }
 
 void Spectrogram::computeSpectrogram() {
-
+	
 }
 
 void Spectrogram::computeSpectrogram(int N, int n, int overlap, std::vector<double>(*window_f)(double, int32_t)) {
@@ -18,4 +18,5 @@ void Spectrogram::computeSpectrogram(int N, int n, int overlap, std::vector<doub
 	this->n = n;
 	this->overlap = overlap;
 	this->window_f = window_f;
+	computeSpectrogram();
 }

@@ -11,9 +11,9 @@ class Spectrogram {
 	int sampleRate;
 	int numChannels;
 	
-	int N;
-	int n;
-	int overlap;
+	int N; // number of windows
+	int n; // points per window
+	int overlap; // overlaping points for each adjacent window
 
 	// function pointer to window function
 	std::vector<double>(*window_f)(double, int32_t);
