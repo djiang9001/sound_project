@@ -30,7 +30,7 @@ int WAVPlayer::patestCallback(const void *inputBuffer, void *outputBuffer,
 	float *out = (float*) outputBuffer;
 	size_t max = (*current->data).size();
 	(void) inputBuffer;
-	std::cout << "callback" << std::endl;
+	//std::cout << "callback" << std::endl;
 	try {
 		for (unsigned int i = 0; i < framesPerBuffer; ++i) {
 			for (int j = 0; j < current->numChannels; ++j) {
@@ -64,6 +64,7 @@ void WAVPlayer::play() {
 		throw "Portaudio failed to open stream.";
 	}
 
+	/*
 	int deviceId = Pa_GetDefaultOutputDevice();
 	std::cout << "default deviceId: " << deviceId << std::endl;
 	char deviceName[20] = "";
@@ -77,16 +78,16 @@ void WAVPlayer::play() {
 		std ::cout << "  maxOutputChannels: " << Pa_GetDeviceInfo(i)->maxOutputChannels << std::endl;
 		std ::cout << "  defaultSampleRate: " << std::to_string(Pa_GetDeviceInfo(i)->defaultSampleRate) << std::endl;
 	}
-	
+	*/
 
 	err = Pa_StartStream(stream);
 	if (err != paNoError) throw "Portaudio failed to start stream.";
-	std::cout << "Playing" << std::endl;
+	//std::cout << "Playing" << std::endl;
 	
 	while(Pa_IsStreamActive(stream) > 0) {
-		Pa_Sleep(1000);
+		display->update(getSampleNumber());
 	}
-	std::cout << "Finished" << std::endl;
+	//std::cout << "Finished" << std::endl;
 
 	err = Pa_AbortStream(stream);
 	if (err != paNoError) throw "Portaudio failed to abort stream.";

@@ -175,7 +175,12 @@ struct WAVFile {
 	}
 
 	template<typename T> double normedSample(const T &n) {
-		double toReturn = static_cast<double>(n) * getFactor();
+		double toReturn;
+		if (typeid(T) == typeid(uint8_t)) {
+			toReturn = static_cast<double>(n) * 2 * getFactor() - 1;
+		} else {
+			toReturn = static_cast<double>(n) * getFactor();
+		}
 		return toReturn;
 	}
 

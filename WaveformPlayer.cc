@@ -6,9 +6,10 @@
 
 #include "WAVFile.h"
 #include "WAVPlayer.h"
-#include "Display.h"
+#include "WaveformDisplay.h"
 
 int main(int argc, char* argv[]) {
+	freopen ("error.log","w",stderr);	
 	if (argc == 1) {
 		std::cout << "Needs filename as arg." << std::endl;
 		return 1;

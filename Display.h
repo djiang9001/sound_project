@@ -14,20 +14,17 @@ class Display {
 
 	WAVFile *theFile;
 	WAVPlayer *player;
+	std::string path;
+	uint32_t sampleRate;
+	uint16_t numChannels;
+
+	uint32_t currentSample;
 
 	public:
 
 	Display(WAVFile *theFile, WAVPlayer *player);
-	
+	virtual ~Display();
 	virtual void update(uint32_t currentSample) = 0;
-};
-
-class WaveformDisplay: public Display {
-	
-	public:
-
-	WaveformDisplay(WAVFile *theFile, WAVPlayer *player);
-	void update(uint32_t currentSample) override;
 };
 
 #endif

@@ -20,8 +20,8 @@ WAVFile::WAVFile(std::string path): path{path}, f{path, std::ifstream::binary} {
 	bytesPerSample = (bitsPerSample + 7) / 8;
 	numSamples = subchunkSize2 / bytesPerSample;
 	
-	/*
-	printHeader();
+	
+	/*printHeader();
 	printData();
 	printNumData();*/
 	normalizeData();
@@ -145,6 +145,7 @@ void WAVFile::printData() {
 }
 
 void WAVFile::printNumData() {
+	std::cout << "printing num data" << std::endl;
 	int i = 0;
 	mapData(0, numSamples, [i](auto *n) mutable {
 		std::cout << std::to_string(*n) << " ";
