@@ -6,8 +6,6 @@
 
 #include "WAVFile.h"
 
-WAVFile::
-
 WAVFile::WAVFile(std::string path): path{path}, f{path, std::ifstream::binary} {
 
 	f.read(chunkID, 4);
@@ -21,10 +19,11 @@ WAVFile::WAVFile(std::string path): path{path}, f{path, std::ifstream::binary} {
 
 	bytesPerSample = (bitsPerSample + 7) / 8;
 	numSamples = subchunkSize2 / bytesPerSample;
-
+	
+	/*
 	printHeader();
 	printData();
-	printNumData();
+	printNumData();*/
 	normalizeData();
 }
 
@@ -160,10 +159,18 @@ void WAVFile::normalizeData() {
 		// need to first normalize the value, which is based on bitsPerSample
 		if (audioFormat == 1) normData.push_back(normedSample(*n));
 		else normData.push_back(*n);
-		std::cout << std::to_string(normData.back()) << std::endl;
+		//std::cout << std::to_string(normData.back()) << std::endl;
 	});
-	std::cout << std::to_string(normData.size()) << std::endl;
+	std::cout << "elements in normData: " << std::to_string(normData.size()) << std::endl;
 }
+
+double WAVFile::getSampleFromChannel(uint16_t channelNum, int i) {
+	return normData[i * numChannels + channelNum];
+}
+/*
+double WAVFile::getSampleAtTime(int t) {
+	return 0;
+}*/
 
 double WAVFile::getFactor() {
 	if (bytesPerSample == 1) return F_8;

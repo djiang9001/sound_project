@@ -182,6 +182,10 @@ struct WAVFile {
 	// Defined in .cc
 
 	double getFactor();
+
+	// from normData, get item at index (i * numChannels + channelNum)
+	double getSampleFromChannel(uint16_t channelNum, int i);
+	
 	void printHeader();
 	void printData();
 	void printNumData();
