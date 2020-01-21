@@ -24,7 +24,7 @@ class Display {
 
 	Display(WAVFile *theFile, WAVPlayer *player);
 	virtual ~Display();
-	virtual void update(uint32_t currentSample) = 0;
+	virtual void update(uint32_t currentSample, double latency) = 0;
 };
 
 #endif

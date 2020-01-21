@@ -99,60 +99,70 @@ void WAVFile::read_LIST() {
 	f.ignore(tempSize);
 }
 
-void WAVFile::printHeader() {
-	std::cout << "path: " << path << std::endl;
+void WAVFile::printHeader(std::ostream &out) {
+	out << "path: " << path << "\n";
 	//print the header
-	std::cout << "chunkID: ";
-	std::cout.write(chunkID, 4) << std::endl;
-	std::cout << "chunkSize: " << std::to_string(chunkSize) << std::endl;
-	std::cout << "format: ";
-	std::cout.write(format, 4) << std::endl;
+	out << "chunkID: ";
+	out.write(chunkID, 4) << "\n";
+	out << "chunkSize: " << std::to_string(chunkSize) << "\n";
+	out << "format: ";
+	out.write(format, 4) << "\n";
 
-	std::cout << "subchunkID1: ";
-	std::cout.write(subchunkID1, 4) << std::endl;
-	std::cout << "subchunkSize1: " << std::to_string(subchunkSize1) << std::endl;
-	std::cout << "audioFormat: " << std::to_string(audioFormat) << std::endl;
-	std::cout << "numChannels: " << std::to_string(numChannels) << std::endl;
-	std::cout << "sampleRate: " << std::to_string(sampleRate) << std::endl;
-	std::cout << "byteRate: " << std::to_string(byteRate) << std::endl;
-	std::cout << "blockAlign: " << std::to_string(blockAlign) << std::endl;
-	std::cout << "bitsPerSample: " << std::to_string(bitsPerSample) << std::endl;
+	out << "subchunkID1: ";
+	out.write(subchunkID1, 4) << "\n";
+	out << "subchunkSize1: " << std::to_string(subchunkSize1) << "\n";
+	out << "audioFormat: " << std::to_string(audioFormat) << "\n";
+	out << "numChannels: " << std::to_string(numChannels) << "\n";
+	out << "sampleRate: " << std::to_string(sampleRate) << "\n";
+	out << "byteRate: " << std::to_string(byteRate) << "\n";
+	out << "blockAlign: " << std::to_string(blockAlign) << "\n";
+	out << "bitsPerSample: " << std::to_string(bitsPerSample) << "\n";
 	
-	std::cout << "extSize: " << std::to_string(extSize) << std::endl;
-	std::cout << "validBitsPerSample: " << std::to_string(validBitsPerSample) << std::endl;
-	std::cout << "channelMask: " << std::to_string(channelMask) << std::endl;
-	std::cout << "GUID: " << std::to_string(GUID) << std::endl;
-	std::cout.write(GUIDjunk, 16) << std::endl;
+	out << "extSize: " << std::to_string(extSize) << "\n";
+	out << "validBitsPerSample: " << std::to_string(validBitsPerSample) << "\n";
+	out << "channelMask: " << std::to_string(channelMask) << "\n";
+	out << "GUID: " << std::to_string(GUID) << "\n";
+	out.write(GUIDjunk, 16) << "\n";
 		
-	std::cout << "fact: ";
-	std::cout.write(fact, 4) << std::endl;
-	std::cout << "factSize: " << std::to_string(factSize) << std::endl;
-	std::cout << "numSamplesPerChannel: " << std::to_string(numSamplesPerChannel) << std::endl;
+	out << "fact: ";
+	out.write(fact, 4) << "\n";
+	out << "factSize: " << std::to_string(factSize) << "\n";
+	out << "numSamplesPerChannel: " << std::to_string(numSamplesPerChannel) << "\n";
 
-	std::cout << "subchunkID2: ";
-	std::cout.write(subchunkID2, 4) << std::endl;
-	std::cout << "subchunkSize2: " << std::to_string(subchunkSize2) << std::endl;
+	out << "subchunkID2: ";
+	out.write(subchunkID2, 4) << "\n";
+	out << "subchunkSize2: " << std::to_string(subchunkSize2) << "\n";
 
-	std::cout << "bytesPerSample: " << std::to_string(bytesPerSample) << std::endl;
-	std::cout << "numSamples: " << std::to_string(numSamples) << std::endl;
+	out << "bytesPerSample: " << std::to_string(bytesPerSample) << "\n";
+	out << "numSamples: " << std::to_string(numSamples) << std::endl;
 }
 
-void WAVFile::printData() {
+void WAVFile::printData(std::ostream &out) {
+	int align = bytesPerSample * numChannels;
 	for (size_t i = 0; i < subchunkSize2; ++i) {
-		std::cout << std::hex << (unsigned int)data[i] << " ";
-		if ((i + 1) % 8 == 0) std::cout << std::endl;
+		out << std::hex << (unsigned int)data[i] << " ";
+		if ((i + 1) % align == 0) out << "\n";
 	}
+	out.flush();
 }
 
-void WAVFile::printNumData() {
-	std::cout << "printing num data" << std::endl;
+void WAVFile::printNormData(std::ostream &out) {
+	for (size_t i = 0; i < normData.size(); ++i) {
+		out << std::to_string(normData[i]) << " ";
+		if ((i + 1) % numChannels == 0) out << "\n";
+	}
+	out.flush();
+}
+
+void WAVFile::printNumData(std::ostream &out) {
+	out << "printing num data" << std::endl;
 	int i = 0;
-	mapData(0, numSamples, [i](auto *n) mutable {
-		std::cout << std::to_string(*n) << " ";
-		if ((i + 1) % 8 == 0) std::cout << std::endl;
+	mapData(0, numSamples, [i, this, &out](auto *n) mutable {
+		out << std::to_string(*n) << " ";
+		if ((i + 1) % numChannels == 0) out << "\n";
 		++i;
 	}); 
-	
+	out.flush();
 }
 
 void WAVFile::normalizeData() {
@@ -162,7 +172,7 @@ void WAVFile::normalizeData() {
 		else normData.push_back(*n);
 		//std::cout << std::to_string(normData.back()) << std::endl;
 	});
-	std::cout << "elements in normData: " << std::to_string(normData.size()) << std::endl;
+	//std::cout << "elements in normData: " << std::to_string(normData.size()) << std::endl;
 }
 
 double WAVFile::getSampleFromChannel(uint16_t channelNum, int i) {

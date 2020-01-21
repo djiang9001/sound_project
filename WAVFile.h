@@ -191,9 +191,10 @@ struct WAVFile {
 	// from normData, get item at index (i * numChannels + channelNum)
 	double getSampleFromChannel(uint16_t channelNum, int i);
 	
-	void printHeader();
-	void printData();
-	void printNumData();
+	void printHeader(std::ostream &out = std::cout);
+	void printData(std::ostream &out = std::cout);
+	void printNormData(std::ostream &out = std::cout);
+	void printNumData(std::ostream &out = std::cout);
 	void normalizeData();
 };
 

@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <cstdio>
 
 #include "portaudio.h"
 
@@ -9,7 +10,7 @@
 #include "WaveformDisplay.h"
 
 int main(int argc, char* argv[]) {
-	freopen ("error.log","w",stderr);	
+	freopen ("logError.txt","w",stderr);	
 	if (argc == 1) {
 		std::cout << "Needs filename as arg." << std::endl;
 		return 1;
@@ -18,18 +19,26 @@ int main(int argc, char* argv[]) {
 	try {
 		WAVFile theFile{argv[1]};
 		if (argc > 2) {
-			std::ofstream f{"normData.txt"};
-			f << argv[1] << std::endl;
-			f << "numChannels " << theFile.numChannels << std::endl;
-			f << "numSamplesPerChannel " << theFile.numSamplesPerChannel << std::endl;
-			f << "subchunkSize2 " << theFile.subchunkSize2 << std::endl;
-			f << "numSamples " << theFile.numSamples << std::endl;
-			f << "normData.size() " << theFile.normData.size() << std::endl;
-			for (size_t i = 0; i < theFile.normData.size(); ++i) {
-				f << theFile.normData[i] << " ";
-				if (i % 2 != 0) f << std::endl;
-			}
-			f << std::endl;
+			std::cout << "Generating logs..." << std::endl;
+			std::ofstream normData{"logNormData.txt"};
+			normData << argv[1] << std::endl;
+			theFile.printNormData(normData);
+			normData.close();
+
+			std::ofstream header{"logHeader.txt"};
+			header << argv[1] << std::endl;
+			theFile.printHeader(header);
+			header.close();
+
+			std::ofstream rawBytes{"logRawBytes.txt"};
+			rawBytes << argv[1] << std::endl;
+			theFile.printData(rawBytes);
+			rawBytes.close();
+
+			std::ofstream numData{"logNumData.txt"};
+			numData << argv[1] << std::endl;
+			theFile.printNumData(numData);
+			numData.close();
 		}
 		WAVPlayer player{&theFile};
 		WaveformDisplay display{&theFile, &player};

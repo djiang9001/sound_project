@@ -22,7 +22,6 @@ class WAVPlayer {
 	// A number from 0 to theFile->data.size()
 	uint32_t currentDataIndex;
 
-
 	static WAVPlayer *current;
 
 	static int patestCallback(const void *inputBuffer, void *outputBuffer,
