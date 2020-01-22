@@ -12,8 +12,6 @@ class WaveformDisplay: public Display {
 	WINDOW *topBar;
 	WINDOW *botBar;
 
-	int middle;
-
 	void setTop();
 	void setBot();
 	void setPositions();
@@ -23,7 +21,7 @@ class WaveformDisplay: public Display {
 
 	WaveformDisplay(WAVFile *theFile, WAVPlayer *player);
 	~WaveformDisplay();
-	void update(uint32_t currentSample, double latency) override;
+	void update(uint32_t currentSample) override;
 };
 
 #endif

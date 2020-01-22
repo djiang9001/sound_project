@@ -19,12 +19,17 @@ class Display {
 	uint16_t numChannels;
 
 	uint32_t currentSample;
+	double latency;
+
+	bool quit;
 
 	public:
 
 	Display(WAVFile *theFile, WAVPlayer *player);
 	virtual ~Display();
-	virtual void update(uint32_t currentSample, double latency) = 0;
+	virtual void update(uint32_t currentSample) = 0;
+	bool getQuit();
+	void setLatency(double latency);
 };
 
 #endif

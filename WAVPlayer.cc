@@ -9,31 +9,30 @@
 #include "WAVFile.h"
 #include "WAVPlayer.h"
 
-WAVPlayer *WAVPlayer::current;
-
 WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->numChannels}, 
 				sampleRate{theFile->sampleRate}, blockAlign{theFile->blockAlign}, 
-				bytesPerSample{theFile->bytesPerSample}, data{&theFile->normData}, 
-				currentDataIndex{0} {
-	WAVPlayer::current = this;
+				bytesPerSample{theFile->bytesPerSample}, 
+				currentData{0, theFile->numChannels, &theFile->normData} {
 	display = nullptr;
 }
 
 uint32_t WAVPlayer::getSampleNumber() {
-	return currentDataIndex / (blockAlign / bytesPerSample);
+	return currentData.currentDataIndex / (blockAlign / bytesPerSample);
 }
 
 int WAVPlayer::patestCallback(const void *inputBuffer, void *outputBuffer,
 				unsigned long framesPerBuffer,
 				const PaStreamCallbackTimeInfo* timeInfo,
 				PaStreamCallbackFlags statusFlags,
-				void *userData) {
+				void *data) {
 	float *out = (float*) outputBuffer;
+	dataStruct *theData = static_cast<dataStruct*>(data);
 	(void) inputBuffer;
 	try {
 		for (unsigned int i = 0; i < framesPerBuffer; ++i) {
-			for (int j = 0; j < current->numChannels; ++j) {
-				*out++ = (*current->data).at(current->currentDataIndex++);
+			for (int j = 0; j < theData->numChannels; ++j) {
+				float toOutput = (theData->data)->at(theData->currentDataIndex++);
+				*out++ = toOutput;
 			}
 		}
 	} catch (...) {
@@ -44,7 +43,7 @@ int WAVPlayer::patestCallback(const void *inputBuffer, void *outputBuffer,
 }
 
 void WAVPlayer::play() {
-	
+
 	PaStream *stream;
 	PaError err;
 	err = Pa_Initialize();
@@ -57,7 +56,7 @@ void WAVPlayer::play() {
 					sampleRate,
 					paFramesPerBufferUnspecified,
 					patestCallback,
-					data);
+					&currentData);
 	if (err != paNoError) {
 		//printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
 		throw "Portaudio failed to open stream.";
@@ -65,6 +64,7 @@ void WAVPlayer::play() {
 
 	std::ofstream devices{"logPortAudioDevices.txt"};
 	int deviceId = Pa_GetDefaultOutputDevice();
+	devices << "tried to play with sample rate: " << sampleRate << std::endl;
 	devices << "default deviceId: " << deviceId << std::endl;
 	char deviceName[20] = "";
 	int numDevices = Pa_GetDeviceCount();
@@ -83,14 +83,18 @@ void WAVPlayer::play() {
 	}
 	devices.close();
 	
-
+	display->setLatency(Pa_GetStreamInfo(stream)->outputLatency);
+	
 	err = Pa_StartStream(stream);
 	if (err != paNoError) throw "Portaudio failed to start stream.";
 	//std::cout << "Playing" << std::endl;
+
 	
-	while(Pa_IsStreamActive(stream) > 0) {
-		display->update(getSampleNumber(), Pa_GetStreamInfo(stream)->outputLatency);
+	while(Pa_IsStreamActive(stream) > 0 && !display->getQuit()) {
+		//Pa_Sleep(10);
+		display->update(getSampleNumber());
 	}
+	//Pa_Sleep(5000);
 	//std::cout << "Finished" << std::endl;
 
 	/*

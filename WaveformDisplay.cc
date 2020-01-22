@@ -9,6 +9,9 @@ WaveformDisplay::WaveformDisplay(WAVFile *theFile, WAVPlayer *player): Display{t
 	if (!stdscr) {
 		initscr();
 	}
+	cbreak();
+	noecho();
+	nodelay(stdscr, TRUE);
 	curs_set(0);
 	getmaxyx(stdscr, row, col);
 	botBar = subwin(stdscr, 1, 0, row - 1, 0);
@@ -41,8 +44,10 @@ void WaveformDisplay::setBot() {
 	mvwaddstr(botBar, 0, 0, bot.c_str());
 	wrefresh(botBar);
 }
-void WaveformDisplay::update(uint32_t currentSample, double latency) {
 
+void WaveformDisplay::update(uint32_t currentSample) {
+	int c = getch();
+	if (c == 'q') quit = true;
 	/*
 	uint32_t latSamples = latency * sampleRate / numChannels;
 	if (currentSample < latSamples) {

@@ -8,6 +8,14 @@
 class Display;
 class WAVFile;
 
+struct dataStruct {
+	
+	uint32_t currentDataIndex;
+	uint16_t numChannels;
+	std::vector<double> *data;
+
+};
+
 class WAVPlayer {	
 
 	WAVFile *theFile;
@@ -17,10 +25,7 @@ class WAVPlayer {
 	uint16_t blockAlign;
 	uint16_t bytesPerSample;
 
-	std::vector<double> *data;
-
-	// A number from 0 to theFile->data.size()
-	uint32_t currentDataIndex;
+	dataStruct currentData;
 
 	static WAVPlayer *current;
 
