@@ -24,3 +24,4 @@ The Makefile statically links with libportaudio.a (included in the repo) and dyn
 
 Example:
 `g++ WaveformPlayer.cc WAVFile.cc WAVPlayer.cc Display.cc WaveformDisplay.cc -lportaudio -lncurses -lasound -lrt -lm -pthread -o WaveformPlayer`
+If playback hangs on Linux systems that use PulseAudio, try commenting out "load-module module-suspend-on-idle" from /etc/pulse/
