@@ -118,15 +118,31 @@ struct WAVFile {
 	//assumes that all input integers are multiples of 8 bit integers, and that
 	//bytesPerSample is the size of the input integer.
 	template<typename T> void getSample(T *dest, const size_t &i) {
-		*dest = 0;
-		std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
+		//*dest = 0;
+		//std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
+		*dest = data[i * bytesPerSample + bytesPerSample - 1];
+		for (int j = bytesPerSample - 2; j >= 0; --j) {
+			*dest = (*dest << 8) | data[i * bytesPerSample + j];
+		}
 		castInt(dest, bytesPerSample);
 	}
 	
 	template<typename T> void getFloatSample (T *dest, const size_t &i) {
-		*dest = 0;
-		std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
-
+		//*dest = 0;
+		//std::memcpy(dest, &(data[i * bytesPerSample]), bytesPerSample);
+		if (sizeof(T) == sizeof(uint32_t)) {
+			*(uint32_t*)dest = data[i * bytesPerSample + bytesPerSample - 1];
+			for (int j = bytesPerSample - 2; j >= 0; --j) {
+				*(uint32_t*)dest = (*(uint32_t*)dest << 8) | data[i * bytesPerSample + j];
+			}
+		} else if (sizeof(T) == sizeof(uint64_t)) {
+			*(uint64_t*)dest = data[i * bytesPerSample + bytesPerSample - 1];
+			for (int j = bytesPerSample - 2; j >= 0; --j) {
+				*(uint64_t*)dest = (*(uint64_t*)dest << 8) | data[i * bytesPerSample + j];
+			}
+		} else {
+			throw "float/double int/long size does not match";
+		}
 	}
 	// performs fn on sample start inclusive to sample end exclusive
 	template<typename T, typename F> void mapNumData(const size_t &start, const size_t &end, F fn) {

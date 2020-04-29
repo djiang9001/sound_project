@@ -5,6 +5,7 @@
 #include <map>
 
 #include "WAVFile.h"
+#include "ReadInt.h"
 
 WAVFile::WAVFile(std::string path): path{path}, f{path, std::ifstream::binary} {
 
@@ -29,8 +30,10 @@ WAVFile::WAVFile(std::string path): path{path}, f{path, std::ifstream::binary} {
 
 // Assumes the first 12 bytes were already read and are "RIFF", size of file - 8, and "WAVE"
 void WAVFile::readChunk() {
+	unsigned char tempSizeBytes[4];
 	f.read((char*)&tempID, 4);
-	f.read((char*)&tempSize, 4);
+	f.read((char*)&tempSizeBytes, 4);
+	bytesToInt(&tempSize, tempSizeBytes, 4);
 	
 	//use map of four-byte arrays to function pointers of what to do
 	auto iter = func_map.find(std::string(tempID, sizeof(tempID)));
@@ -52,19 +55,29 @@ void WAVFile::read_fmt() {
 	strncpy(subchunkID1, tempID, 4);
 	subchunkSize1 = tempSize;
 	if (subchunkSize1 < 16) throw "fmt chunk size less than 16";
-	f.read((char*)&audioFormat, 2);
+	fileToInt(f, &audioFormat, 2);
+	fileToInt(f, &numChannels, 2);
+	fileToInt(f, &sampleRate, 4);
+	fileToInt(f, &byteRate, 4);
+	fileToInt(f, &blockAlign, 2);
+	fileToInt(f, &bitsPerSample, 2);
+	/*f.read((char*)&audioFormat, 2);
 	f.read((char*)&numChannels, 2);
 	f.read((char*)&sampleRate, 4);
 	f.read((char*)&byteRate, 4);
 	f.read((char*)&blockAlign, 2);
-	f.read((char*)&bitsPerSample, 2);
+	f.read((char*)&bitsPerSample, 2);*/
 	if (subchunkSize1 > 16) {
-		std::cout << "fmt chunk has an ext" << std::endl;	
-		f.read((char*)&extSize, 2);
+		std::cout << "fmt chunk has an ext" << std::endl;
+		fileToInt(f, &extSize, 2);
+		//f.read((char*)&extSize, 2);
 		if (extSize == 22) {
-			f.read((char*)&validBitsPerSample, 2);
+			fileToInt(f, &validBitsPerSample, 2);
+			fileToInt(f, &channelMask, 4);
+			fileToInt(f, &GUID, 2);
+			/*f.read((char*)&validBitsPerSample, 2);
 			f.read((char*)&channelMask, 4);
-			f.read((char*)&GUID, 2);
+			f.read((char*)&GUID, 2);*/
 			f.read(GUIDjunk, 14);
 		} else {
 			std::cout << "ext had different fields than expected" << std::endl;
@@ -83,15 +96,21 @@ void WAVFile::read_fact() {
 	strncpy(fact, tempID, 4);
 	factSize = tempSize;
 	if (factSize < 4) throw "factSize < 4";
-	f.read((char*)&numSamplesPerChannel, 4);
-	f.ignore(factSize - 4);
+	fileToInt(f, &numSamplesPerChannel, 4);
+	//f.read((char*)&numSamplesPerChannel, 4);
+	f.ignore(factSize - 4);//ignores rest if factSize > 4
 }
 
 void WAVFile::read_data() {
 	strncpy(subchunkID2, tempID, 4);
 	subchunkSize2 = tempSize;
 	data.reserve(subchunkSize2);
-	f.read((char*)(&data[0]), subchunkSize2);
+	unsigned char* temp;
+	for (int i = 0; i < subchunkSize2; ++i) {
+		f.read((char*)temp, 1);
+		data.push_back(*temp);
+	}
+	//f.read((char*)(&data[0]), subchunkSize2);
 }
 
 void WAVFile::read_LIST() {
