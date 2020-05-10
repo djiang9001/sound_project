@@ -92,6 +92,7 @@ void WAVPlayer::play() {
 	
 	while(Pa_IsStreamActive(stream) > 0 && !display->getQuit()) {
 		//Pa_Sleep(10);
+		display->setLatency(Pa_GetStreamInfo(stream)->outputLatency);
 		display->update(getSampleNumber());
 	}
 	//Pa_Sleep(5000);
