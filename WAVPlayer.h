@@ -45,7 +45,7 @@ class WAVPlayer {
 	
 	// Returns a number from 0 to theFile->numSamplesPerChannel - 1
 	// equal to currentDataIndex / (blockAlign / bytesPerSample)
-	uint32_t getSampleNumber();
+	int getSampleNumber();
 };
 
 #endif

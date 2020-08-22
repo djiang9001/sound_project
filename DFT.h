@@ -10,6 +10,8 @@ double hann (double signal, size_t j, size_t window);
 // sample number of the multi-channel signal
 std::vector<std::complex<double>> slowDFT (size_t index, size_t window, size_t channel, size_t numChannels, const std::vector<double> &signal);
 
+std::vector<std::complex<double>> recRad2DFT (size_t index, size_t window, size_t channel, size_t numChannels, const std::vector<double> &signal);
+
 std::vector<std::complex<double>> rad2DFT (size_t index, size_t window, size_t channel, size_t numChannels, const std::vector<double> &signal);
 
 std::vector<std::complex<double>> windowedDFT (size_t index, size_t window, size_t channel, size_t numChannels, const std::vector<double> &signal, double (*windowFunction) (double, size_t, size_t));

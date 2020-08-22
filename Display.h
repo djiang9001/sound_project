@@ -18,7 +18,7 @@ class Display {
 	uint32_t sampleRate;
 	uint16_t numChannels;
 
-	uint32_t currentSample;
+	int currentSample;
 	double latency;
 
 	bool quit;
@@ -27,7 +27,7 @@ class Display {
 
 	Display(WAVFile *theFile, WAVPlayer *player);
 	virtual ~Display();
-	virtual void update(uint32_t currentSample) = 0;
+	virtual void update(int currentSample) = 0;
 	bool getQuit();
 	void setLatency(double latency);
 };

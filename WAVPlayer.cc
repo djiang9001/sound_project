@@ -16,7 +16,7 @@ WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->n
 	display = nullptr;
 }
 
-uint32_t WAVPlayer::getSampleNumber() {
+int WAVPlayer::getSampleNumber() {
 	return currentData.currentDataIndex / (blockAlign / bytesPerSample);
 }
 

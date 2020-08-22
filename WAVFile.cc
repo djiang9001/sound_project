@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 
+#include "FFTWwrap.h"
 #include "WAVFile.h"
 #include "ReadInt.h"
 
@@ -212,3 +213,28 @@ double WAVFile::getFactor() {
 }
 
 WAVFile::~WAVFile() {}
+
+void WAVFile::calculateSpectrogram(int window, int overlap) {
+	std::cout << "Calculating spectrogram" << std::endl;
+	spectrogram_window = window;
+	spectrogram_overlap = overlap;
+	std::vector<std::vector<double>> simplifiedSignals; // one signal per channel
+	for (int i = 0; i < numChannels; ++i) {
+		std::vector<double> signal;
+		//signal.reserve(normData.size()/numChannels);
+		for (int j = 0; j < normData.size()/numChannels; ++j) {
+			signal.push_back(normData[j*numChannels + i]);
+		}
+		simplifiedSignals.push_back(signal);
+	}
+	for (int i = 0; i < numChannels; ++i) {
+		std::vector<std::vector<std::complex<double>>> channelSpec;
+		channelSpec.reserve(normData.size()/numChannels/(window - overlap));
+		spectrogram.push_back(channelSpec);
+		for (size_t j = 0; j < simplifiedSignals[i].size() - window; j += window - overlap) {
+			spectrogram.back().push_back(FFTW_DFT(j, window, simplifiedSignals[i], "hann"));
+		}
+		spectrogram.push_back(channelSpec);
+	}
+	
+}

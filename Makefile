@@ -1,7 +1,7 @@
 CXX = g++
-CXXFLAGS = -std=c++14 -Wall -MMD
+CXXFLAGS = -std=c++14 -Wall -MMD -lfftw3
 EXEC = WaveformPlayer
-OBJECTS = WaveformPlayer.o WAVFile.o WAVPlayer.o Display.o WaveformDisplay.o
+OBJECTS = WaveformPlayer.o WAVFile.o WAVPlayer.o Display.o WaveformDisplay.o DFT.o FFTWwrap.o
 DEPENDS = ${OBJECTS:.o=.d}
 
 ${EXEC} : ${OBJECTS}

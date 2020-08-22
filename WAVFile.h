@@ -9,6 +9,7 @@
 #include <functional>
 #include <map>
 #include <fstream>
+#include <complex>
 
 #include "ReadInt.h"
 
@@ -107,6 +108,11 @@ struct WAVFile {
 	
 	// vector of normed (-1.0, 1.0) doubles that will be used for calculations
 	std::vector<double> normData;
+
+	// Full spectrogram of audio, for each [channel][time][frequency]
+	std::vector<std::vector<std::vector<std::complex<double>>>> spectrogram;
+	int spectrogram_window = 0;
+	int spectrogram_overlap = 0;
 	
 	WAVFile(std::string path);
 	virtual ~WAVFile();
@@ -212,6 +218,7 @@ struct WAVFile {
 	void printNormData(std::ostream &out = std::cout);
 	void printNumData(std::ostream &out = std::cout);
 	void normalizeData();
+	void calculateSpectrogram(int window = 8192, int overlap = 4096);
 };
 
 #endif

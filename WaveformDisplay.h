@@ -21,7 +21,7 @@ class WaveformDisplay: public Display {
 
 	WaveformDisplay(WAVFile *theFile, WAVPlayer *player);
 	~WaveformDisplay();
-	void update(uint32_t currentSample) override;
+	void update(int currentSample) override;
 };
 
 #endif

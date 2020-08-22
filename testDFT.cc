@@ -4,6 +4,7 @@
 
 #include <fftw3.h>
 
+#include "FFTWwrap.h"
 #include "DFT.h"
 #include "WAVFile.h"
 
@@ -16,7 +17,7 @@ void outputFFTW(size_t index, size_t window, size_t channel, const WAVFile &theF
 	p = fftw_plan_dft_1d(window, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 
 	size_t j = 0;
-	size_t startIndex = index * theFile.numChannels + channel - 1;
+	size_t startIndex = index * theFile.numChannels + channel;
 	for (size_t i = 0; i < window; ++i) {
 		in[j][1] = 0;
 		in[j++][0] = theFile.normData[startIndex + i * theFile.numChannels];
@@ -54,13 +55,32 @@ int main(int argc, char *argv[]) {
 	try {
 		WAVFile theFile{argv[1]};
 		
-		size_t index = 0;//1000;
+		size_t index = 0;
 		size_t window = 8192;
-		size_t channel = 2;
+		size_t channel = 0;
 		
 		std::vector<std::complex<double>> transformFFTW;
 		outputFFTW(index, window, channel, theFile, transformFFTW);
-
+		
+		std::vector<double> simplifiedSignal;
+		simplifiedSignal.reserve(theFile.normData.size() / theFile.numChannels);
+		for (int i = 0; i < theFile.normData.size() / theFile.numChannels; ++i) {
+			simplifiedSignal.push_back(theFile.normData[i*theFile.numChannels + channel]);
+		}
+		std::vector<std::complex<double>> wrapFFTW = FFTW_DFT(index, window, simplifiedSignal);
+		std::ofstream outW{"DFT_test_wrap.txt"};
+		for (size_t i = 0; i < window; ++i) {
+			outW << "bin " << i << " " << wrapFFTW[i] << std::endl;
+		}
+		std::cout << maxDiff(transformFFTW, wrapFFTW) << std::endl;
+		/*
+		theFile.calculateSpectrogram(8192, 4096);
+		std::ofstream outC{"DFT_test_calc.txt"};
+		for (size_t i = 0; i < window; ++i) {
+			outC << "bin " << i << " " << theFile.spectrogram[channel][2][i] << std::endl;
+		}
+		std::cout << maxDiff(transformFFTW, theFile.spectrogram[channel][2]) << std::endl;
+		*/
 		std::vector<std::complex<double>> transform = slowDFT(index, window, channel, theFile.numChannels, theFile.normData);
 		std::ofstream out{"DFT_test_good.txt"};
 		for (size_t i = 0; i < window; ++i) {
@@ -87,7 +107,9 @@ int main(int argc, char *argv[]) {
 			out4 << "bin " << i << " " << transformHann[i] << std::endl;
 		}
 		std::cout << maxDiff(transformHann, transformHannSlow) << std::endl;
+		std::vector<std::complex<double>> wrapFFTWHann = FFTW_DFT(index, window, simplifiedSignal, "hann");
 
+		std::cout << maxDiff(transformHann, wrapFFTWHann) << std::endl;
 
 		std::vector<std::complex<double>> transformIndex = rad2DFT(index, window, channel, theFile.numChannels, theFile.normData);
 		std::vector<std::complex<double>> transformIndex0 = rad2DFT(0, window, channel, theFile.numChannels, theFile.normData);
@@ -108,6 +130,12 @@ int main(int argc, char *argv[]) {
 		for (size_t i = 0; i < window; ++i) {
 			std::cout << hann(channel_1.at(index + i), i, window) << std::endl;
 		}*/
+		//for (int i = 0; i < 1000; ++i) {
+			//std::vector<std::complex<double>> transformFFTW;
+			//outputFFTW(index, window, channel, theFile, transformFFTW);
+
+			//std::vector<std::complex<double>> transformRec = rad2DFT(index, window, channel, theFile.numChannels, theFile.normData);
+		//}
 	} catch (char const *e) {
 		std::cout << e << std::endl;
 	}

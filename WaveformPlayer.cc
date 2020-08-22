@@ -19,30 +19,34 @@ int main(int argc, char* argv[]) {
 	try {
 		WAVFile theFile{argv[1]};
 		if (argc > 2) {
-			std::cout << "Generating logs ..." << std::endl;
-			std::cout << "Generating logNormData.txt ..." << std::endl;
-			std::ofstream normData{"logNormData.txt"};
-			normData << argv[1] << std::endl;
-			theFile.printNormData(normData);
-			normData.close();
-
-			std::cout << "Generating logHeader.txt ..." << std::endl;
-			std::ofstream header{"logHeader.txt"};
-			header << argv[1] << std::endl;
-			theFile.printHeader(header);
-			header.close();
-
-			std::cout << "Generating logRawBytes.txt ..." << std::endl;
-			std::ofstream rawBytes{"logRawBytes.txt"};
-			rawBytes << argv[1] << std::endl;
-			theFile.printData(rawBytes);
-			rawBytes.close();
-
-			std::cout << "Generating logNumData.txt ..." << std::endl;
-			std::ofstream numData{"logNumData.txt"};
-			numData << argv[1] << std::endl;
-			theFile.printNumData(numData);
-			numData.close();
+		       	if (strcmp(argv[2], "-debug") == 0) {
+				std::cout << "Generating logs ..." << std::endl;
+				std::cout << "Generating logNormData.txt ..." << std::endl;
+				std::ofstream normData{"logNormData.txt"};
+				normData << argv[1] << std::endl;
+				theFile.printNormData(normData);
+				normData.close();
+				
+				std::cout << "Generating logHeader.txt ..." << std::endl;
+				std::ofstream header{"logHeader.txt"};
+				header << argv[1] << std::endl;
+				theFile.printHeader(header);
+				header.close();
+				
+				std::cout << "Generating logRawBytes.txt ..." << std::endl;
+				std::ofstream rawBytes{"logRawBytes.txt"};
+				rawBytes << argv[1] << std::endl;
+				theFile.printData(rawBytes);
+				rawBytes.close();
+				
+				std::cout << "Generating logNumData.txt ..." << std::endl;
+				std::ofstream numData{"logNumData.txt"};
+				numData << argv[1] << std::endl;
+				theFile.printNumData(numData);
+				numData.close();
+			} else if (strcmp(argv[2], "-spec") == 0) {
+				theFile.calculateSpectrogram();
+			}
 		}
 		WAVPlayer player{&theFile};
 		WaveformDisplay display{&theFile, &player};
