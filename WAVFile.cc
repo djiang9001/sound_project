@@ -234,7 +234,5 @@ void WAVFile::calculateSpectrogram(int window, int overlap) {
 		for (size_t j = 0; j < simplifiedSignals[i].size() - window; j += window - overlap) {
 			spectrogram.back().push_back(FFTW_DFT(j, window, simplifiedSignals[i], "hann"));
 		}
-		spectrogram.push_back(channelSpec);
 	}
-	
 }

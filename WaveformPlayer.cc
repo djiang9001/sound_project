@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 				theFile.printNumData(numData);
 				numData.close();
 			} else if (strcmp(argv[2], "-spec") == 0) {
-				theFile.calculateSpectrogram();
+				theFile.calculateSpectrogram(8192, 4096);
 			}
 		}
 		WAVPlayer player{&theFile};

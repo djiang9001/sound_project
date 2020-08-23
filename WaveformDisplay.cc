@@ -78,14 +78,32 @@ void WaveformDisplay::update(int currentSample) {
 		addstr(std::string(length, '#').c_str());
 	}
 	if (theFile->spectrogram_window != 0) {
-		// Draw spectrum
-		std::vector<std::complex<double>> spectrum = theFile->spectrogram[0]
-			[this->currentSample / (theFile->spectrogram_window - theFile->spectrogram_overlap)];
+		int overlapping_frames = (theFile->spectrogram_window * 2) / 
+			(theFile->spectrogram_window - theFile->spectrogram_overlap) - 1;
+		std::vector<double> magnitudes(theFile->spectrogram_window/2, 0.0);
 		int max_height = row - 3 - numChannels;
-		std::vector<double> magnitudes;
-		magnitudes.reserve(spectrum.size()/2);
-		for (int i = 0; i < spectrum.size()/2; ++i) {
-			magnitudes.push_back(std::abs(spectrum[i]));
+		for (int c = 0; c < numChannels; ++c) {
+			for (int j = 0; j < overlapping_frames; ++j) {
+				int begin_frame = this->currentSample / 
+					(theFile->spectrogram_window - theFile->spectrogram_overlap)
+					- overlapping_frames / 2;
+				int index;
+				if (begin_frame + j < 0) {
+					index = 0;
+				} else if (begin_frame + j >= theFile->spectrogram[c].size()) {
+					index = theFile->spectrogram[c].size() - 1;
+				} else {
+					index = begin_frame + j;
+				}
+				std::vector<std::complex<double>> spectrum = theFile->spectrogram[c]
+					[index];
+				for (int i = 0; i < magnitudes.size(); ++i) {
+					magnitudes[i] += std::abs(spectrum[i]);
+				}
+			}
+		}
+		for (int i = 0; i < magnitudes.size(); ++i) {
+			magnitudes[i] = magnitudes[i] / (overlapping_frames * numChannels);
 		}
 		std::vector<double> bin_magnitudes(col, 0.0);
 		int per_bin = magnitudes.size() / col;
