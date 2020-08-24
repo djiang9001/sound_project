@@ -1,10 +1,8 @@
 #include <string>
-#include <curses.h>
 #include <cstdint>
 #include <complex>
 #include <cmath>
 
-#include "DFT.h"
 #include "WaveformDisplay.h"
 #include "WAVFile.h"
 
@@ -31,7 +29,7 @@ WaveformDisplay::~WaveformDisplay() {
 
 void WaveformDisplay::setTop() {
 	std::string top = "Playing \"" + path + "\" at " + std::to_string(sampleRate) + "Hz with " + 
-		std::to_string(numChannels) + " channels";
+		std::to_string(numChannels) + " channels. Press 'q' to quit.";
 	mvwaddstr(topBar, 0, 0, top.c_str());
 	wrefresh(topBar);
 }

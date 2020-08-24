@@ -3,8 +3,6 @@
 #include <string>
 #include <cstdio>
 
-#include "portaudio.h"
-
 #include "WAVFile.h"
 #include "WAVPlayer.h"
 #include "WaveformDisplay.h"

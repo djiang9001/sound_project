@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "portaudio.h"
+#include <portaudio.h>
 
 class Display;
 class WAVFile;

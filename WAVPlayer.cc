@@ -3,8 +3,6 @@
 #include <iostream>
 #include <fstream>
 
-#include "portaudio.h"
-
 #include "Display.h"
 #include "WAVFile.h"
 #include "WAVPlayer.h"
