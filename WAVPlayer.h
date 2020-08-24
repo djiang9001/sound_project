@@ -6,7 +6,7 @@
 #include <portaudio.h>
 
 class Display;
-class WAVFile;
+struct WAVFile;
 
 struct dataStruct {
 	
