@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <complex>
 #include <cmath>
+#include <csignal>
 
 #include "WaveformDisplay.h"
 #include "WAVFile.h"
@@ -46,9 +47,23 @@ void WaveformDisplay::setBot() {
 	wrefresh(botBar);
 }
 
+void WaveformDisplay::resize() {
+	getmaxyx(stdscr, row, col);
+	delwin(botBar);
+	delwin(topBar);
+	botBar = subwin(stdscr, 1, 0, row - 1, 0);
+	topBar = subwin(stdscr, 1, 0, 0, 0);
+	setTop();
+	refresh();
+}
+
 void WaveformDisplay::update(int currentSample) {
 	int c = getch();
-	if (c == 'q') quit = true;
+	if (c == 'q') { 
+		quit = true;
+	} else if (c == KEY_RESIZE) {
+		resize();
+	}
 	this->currentSample = currentSample - latency * sampleRate * numChannels;//Compensate for latency, else the display is too early
 	if (this->currentSample < 0) this->currentSample = 0;
 	move (1, 0);
@@ -153,4 +168,5 @@ void WaveformDisplay::update(int currentSample) {
 	std::cout << std::endl;*/
 
 }
+
 
