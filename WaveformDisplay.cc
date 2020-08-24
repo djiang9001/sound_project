@@ -51,14 +51,7 @@ void WaveformDisplay::setBot() {
 void WaveformDisplay::update(int currentSample) {
 	int c = getch();
 	if (c == 'q') quit = true;
-	/*
-	uint32_t latSamples = latency * sampleRate / numChannels;
-	if (currentSample < latSamples) {
-		this->currentSample = 0;
-	} else {
-		this->currentSample = currentSample - latSamples;
-	}*/
-	this->currentSample = currentSample - latency * sampleRate;//Compensate for latency, else the display is too early
+	this->currentSample = currentSample - latency * sampleRate * numChannels;//Compensate for latency, else the display is too early
 	if (this->currentSample < 0) this->currentSample = 0;
 	move (1, 0);
 	addstr("Latency: ");
@@ -105,29 +98,28 @@ void WaveformDisplay::update(int currentSample) {
 		for (int i = 0; i < magnitudes.size(); ++i) {
 			magnitudes[i] = magnitudes[i] / (overlapping_frames * numChannels);
 		}
+		double log_base = exp(log(theFile->spectrogram_window/2)/col);
 		std::vector<double> bin_magnitudes(col, 0.0);
-		int per_bin = magnitudes.size() / col;
 		int s = 0;
+		int bin_number = 0;
 		double max_magnitude = 0;
-		for (int i = 0; i < bin_magnitudes.size(); ++i) {
-			for (int j = 0; j < per_bin; ++j) {
-				if (bin_magnitudes[i] < magnitudes[s]) {
-					bin_magnitudes[i] = magnitudes[s];
+		for (int i = 0; i < magnitudes.size(); ++i) {
+			int bin_new = (log(i + 1)/log(log_base));
+			if (bin_new >= col) {
+				bin_new = col - 1;
+			}
+			if (bin_new > bin_number) {
+				for (int j = bin_number; j < bin_new; ++j) {
+					bin_magnitudes[j] = bin_magnitudes[bin_number];
 				}
-				++s;
 			}
-			if (bin_magnitudes[i] > max_magnitude) {
-				max_magnitude = bin_magnitudes[i];
+			bin_number = bin_new;
+			if (bin_magnitudes[bin_new] < magnitudes[i]) {
+				bin_magnitudes[bin_new] = magnitudes[i];
 			}
-		}
-		while (s < magnitudes.size()) {
-			if (bin_magnitudes[bin_magnitudes.size() - 1] < magnitudes[s]) {
-				bin_magnitudes[bin_magnitudes.size() - 1] = magnitudes[s];
+			if (bin_magnitudes[bin_new] > max_magnitude) {
+				max_magnitude = bin_magnitudes[bin_new];
 			}
-			++s;
-		}
-		if (bin_magnitudes[bin_magnitudes.size() - 1] > max_magnitude) {
-			max_magnitude = bin_magnitudes[bin_magnitudes.size() - 1];
 		}
 		std::vector<int> heights;
 		heights.reserve(bin_magnitudes.size());

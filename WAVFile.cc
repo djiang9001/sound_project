@@ -214,7 +214,7 @@ double WAVFile::getFactor() {
 
 WAVFile::~WAVFile() {}
 
-void WAVFile::calculateSpectrogram(int window, int overlap) {
+void WAVFile::calculateSpectrogram(int window, int overlap, bool use_hann) {
 	std::cout << "Calculating spectrogram" << std::endl;
 	spectrogram_window = window;
 	spectrogram_overlap = overlap;
@@ -232,7 +232,13 @@ void WAVFile::calculateSpectrogram(int window, int overlap) {
 		channelSpec.reserve(normData.size()/numChannels/(window - overlap));
 		spectrogram.push_back(channelSpec);
 		for (size_t j = 0; j < simplifiedSignals[i].size() - window; j += window - overlap) {
-			spectrogram.back().push_back(FFTW_DFT(j, window, simplifiedSignals[i], "hann"));
+			if (use_hann) {
+				spectrogram.back().push_back(
+						FFTW_DFT(j, window, simplifiedSignals[i], "hann"));
+			} else {
+				spectrogram.back().push_back(
+						FFTW_DFT(j, window, simplifiedSignals[i], ""));
+			}
 		}
 	}
 }

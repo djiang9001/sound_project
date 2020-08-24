@@ -218,7 +218,7 @@ struct WAVFile {
 	void printNormData(std::ostream &out = std::cout);
 	void printNumData(std::ostream &out = std::cout);
 	void normalizeData();
-	void calculateSpectrogram(int window = 8192, int overlap = 4096);
+	void calculateSpectrogram(int window = 8192, int overlap = 4096, bool use_hann = true);
 };
 
 #endif
