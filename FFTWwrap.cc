@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include <complex>
 #include <string>
 #include <fftw3.h>
@@ -32,5 +34,8 @@ std::vector<std::complex<double>> FFTW_DFT(size_t index, size_t window, const st
 	for (size_t i = 0; i < window; ++i) {
 		output.emplace_back(out[i][0], out[i][1]);
 	}
+	fftw_destroy_plan(p);
+	fftw_free(in);
+	fftw_free(out);
 	return output;
 }

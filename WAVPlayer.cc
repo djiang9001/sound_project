@@ -59,7 +59,7 @@ void WAVPlayer::play() {
 		//printf(  "PortAudio error: %s\n", Pa_GetErrorText( err ) );
 		throw "Portaudio failed to open stream.";
 	}
-
+	/*
 	std::ofstream devices{"logPortAudioDevices.txt"};
 	int deviceId = Pa_GetDefaultOutputDevice();
 	devices << "tried to play with sample rate: " << sampleRate << std::endl;
@@ -80,7 +80,7 @@ void WAVPlayer::play() {
 		devices << "  defaultSampleRate: " << std::to_string(Pa_GetDeviceInfo(i)->defaultSampleRate) << std::endl;
 	}
 	devices.close();
-	
+	*/
 	display->setLatency(Pa_GetStreamInfo(stream)->outputLatency);
 	
 	err = Pa_StartStream(stream);

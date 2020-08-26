@@ -14,6 +14,7 @@ WaveformDisplay::WaveformDisplay(WAVFile *theFile, WAVPlayer *player): Display{t
 	cbreak();
 	noecho();
 	nodelay(stdscr, TRUE);
+	keypad(stdscr, TRUE);
 	curs_set(0);
 	getmaxyx(stdscr, row, col);
 	botBar = subwin(stdscr, 1, 0, row - 1, 0);
@@ -62,9 +63,12 @@ void WaveformDisplay::update(int currentSample) {
 	if (c == 'q') { 
 		quit = true;
 	} else if (c == KEY_RESIZE) {
+		resize_term(0, 0);
+		erase();
 		resize();
+		curs_set(0);
 	}
-	this->currentSample = currentSample - latency * sampleRate * numChannels;//Compensate for latency, else the display is too early
+	this->currentSample = currentSample - latency * sampleRate;//Compensate for latency, else the display is too early
 	if (this->currentSample < 0) this->currentSample = 0;
 	move (1, 0);
 	addstr("Latency: ");

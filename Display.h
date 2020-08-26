@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 
-class WAVFile;
+struct WAVFile;
 class WAVPlayer;
 
 class Display {

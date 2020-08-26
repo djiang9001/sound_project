@@ -14,7 +14,6 @@ class WaveformDisplay: public Display {
 
 	void setTop();
 	void setBot();
-	void setPositions();
 	void resize();	
 
 	public:

@@ -13,7 +13,6 @@ WAVFile::WAVFile(std::string path): path{path}, f{path, std::ifstream::binary} {
 	f.read(chunkID, 4);
 	f.read((char*)&chunkSize, 4);
 	f.read(format, 4);
-	
 	if (strncmp(chunkID, "RIFF", 4) != 0 || strncmp(format, "WAVE", 4) != 0) throw "Not a WAV";
 
 	while (f.peek() != EOF) readChunk();
@@ -106,10 +105,10 @@ void WAVFile::read_data() {
 	strncpy(subchunkID2, tempID, 4);
 	subchunkSize2 = tempSize;
 	data.reserve(subchunkSize2);
-	unsigned char* temp;
+	unsigned char temp;
 	for (int i = 0; i < subchunkSize2; ++i) {
-		f.read((char*)temp, 1);
-		data.push_back(*temp);
+		f.read((char*)&temp, 1);
+		data.push_back(temp);
 	}
 	//f.read((char*)(&data[0]), subchunkSize2);
 }
