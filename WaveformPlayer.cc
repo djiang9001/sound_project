@@ -8,6 +8,7 @@
 #include "WaveformDisplay.h"
 
 int main(int argc, char* argv[]) {
+	freopen("logError.txt", "w", stderr);
 	if (argc < 2) {
 		std::cout << "Usage: ./WaveformPlayer FILE [OPTION]" << std::endl;
 		std::cout << "Try './WaveformPlayer -help' for details" << std::endl;
