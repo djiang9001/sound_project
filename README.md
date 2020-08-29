@@ -38,6 +38,8 @@ We need to install Portaudio, NCurses, and FFTW. These can be installed by simpl
 
 Note that depending on what is available on your system, Portaudio may be configured differently, and so you might need to link different libraries than the ones in the provided Makefile for WaveformPlayer. See http://portaudio.com/docs/v19-doxydocs/compile_linux.html for details. If Portaudio is built with only ALSA then it should work as-is.
 
+Once libraries are installed, `make` in the root directory (the one with the Makefile).
+
 If you want to build these libraries manually:
 
 - Portaudio
@@ -57,4 +59,4 @@ WaveformPlayer comes prebuilt for Windows x86 and x64. The .exe files are locate
 
 These were built with Windows 10.0.17763.0 SDK. PortAudio was built with support for MME, DirectSound, WASAPI, WDM/KS, but not ASIO (see http://portaudio.com/docs/v19-doxydocs/compile_windows.html for more info on building PortAudio for Windows). PDCurses was built following instructions here: https://github.com/wmcbrine/PDCurses/blob/master/wincon/README.md. I used the precompiled FFTW .dll files from http://www.fftw.org/install/windows.html.
 
-If you want to build it yourself, the provided .sln file can be used to open the project with Microsoft Visual Studio with relative paths set up.
+If you want to build it yourself, the provided .sln file can be used to open the project with Microsoft Visual Studio with relative paths set up, so you can just use the "Build Solution" button.
