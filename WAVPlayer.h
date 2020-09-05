@@ -3,10 +3,31 @@
 
 #include <cstdint>
 #include <vector>
+
+#ifndef __EMSCRIPTEN__
+
 #include <portaudio.h>
+
+#else
+
+#include <emscripten.h>
+#include <emscripten/html5.h>
+
+#endif
 
 class Display;
 struct WAVFile;
+
+#ifdef __EMSCRIPTEN__
+
+struct dataStruct {
+
+	uint32_t currentDataIndex;
+	uint32_t sampleRate;
+
+};
+
+#else
 
 struct dataStruct {
 	
@@ -15,6 +36,8 @@ struct dataStruct {
 	std::vector<double> *data;
 
 };
+
+#endif
 
 class WAVPlayer {	
 
@@ -27,13 +50,19 @@ class WAVPlayer {
 
 	dataStruct currentData;
 
-	static WAVPlayer *current;
+#ifdef __EMSCRIPTEN__
+
+	static EM_BOOL iteration(double time, void *data);
+
+#else
 
 	static int patestCallback(const void *inputBuffer, void *outputBuffer,
                                 unsigned long framesPerBuffer,
                                 const PaStreamCallbackTimeInfo* timeInfo,
                                 PaStreamCallbackFlags statusFlags,
                                 void *userData);
+
+#endif
 
 	public:
 	

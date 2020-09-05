@@ -7,16 +7,65 @@
 #include "WAVFile.h"
 #include "WAVPlayer.h"
 
+#ifdef __EMSCRIPTEN__
+
 WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->numChannels}, 
 				sampleRate{theFile->sampleRate}, blockAlign{theFile->blockAlign}, 
 				bytesPerSample{theFile->bytesPerSample}, 
-				currentData{0, theFile->numChannels, &theFile->normData} {
+				currentData{0, theFile->sampleRate} {
 	display = nullptr;
 }
+
+#else
+
+WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->numChannels}, 
+				sampleRate{theFile->sampleRate}, blockAlign{theFile->blockAlign}, 
+				bytesPerSample{theFile->bytesPerSample}, 
+	currentData{ 0, theFile->numChannels, &theFile->normData } {
+	display = nullptr;
+}
+
+#endif
 
 int WAVPlayer::getSampleNumber() {
 	return currentData.currentDataIndex / (blockAlign / bytesPerSample);
 }
+
+#ifdef __EMSCRIPTEN__
+
+EM_BOOL WAVPlayer::iteration(double time, void* data) {
+	dataStruct *theData = static_cast<dataStruct*>(data);
+	double currentTime = EM_ASM_DOUBLE({
+			return sound.seek();
+	});
+	double latency = EM_ASM_DOUBLE({
+		if (typeof Howler.ctx != = 'undefined') {
+			if (typeof Howler.ctx.outputLatency != = 'undefined') {
+				return Howler.ctx.outputLatency;
+			} else if (typeof Howler.ctx.baseLatency != = 'undefined') {
+				return Howler.ctx.baseLatency;
+			}
+		}
+		return 0.0;
+	});
+	theData->currentDataIndex = currentTime * sampleRate;
+	display->setLatency(latency);
+	display->update(getSampleNumber());
+	int is_finished = EM_ASM_INT({
+			return finished;
+		});
+	if (finished) {
+		return EM_FALSE;
+	} else {
+		return EM_TRUE;
+	}
+}
+
+void WAVPlayer::play() {
+	emscripten_request_animation_frame_loop(iteration, &currentData);
+}
+
+#else
 
 int WAVPlayer::patestCallback(const void *inputBuffer, void *outputBuffer,
 				unsigned long framesPerBuffer,
@@ -111,3 +160,5 @@ void WAVPlayer::play() {
 	if (err != paNoError) throw "Portaudio failed to terminate.";
 	
 }
+
+#endif

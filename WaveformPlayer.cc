@@ -7,8 +7,28 @@
 #include "WAVPlayer.h"
 #include "WaveformDisplay.h"
 
+#ifdef __EMSCRIPTEN__
+
+EM_BOOL wait_for_play(double time, void* data) {
+	int play_pressed = EM_ASM_INT({
+			return play_pressed;
+		});
+	if (play_pressed) {
+		return EM_FALSE:
+	} else {
+		return EM_TRUE;
+	}
+}
+
+#endif
+
 int main(int argc, char* argv[]) {
 	freopen("logError.txt", "w", stderr);
+#ifdef __EMSCRIPTEN__
+	while (true) {
+	emscripten_request_animation_frame_loop(wait_for_play, nullptr);
+	WAVFile theFile{ "your_wav_file" };
+#else
 	if (argc < 2) {
 		std::cout << "Usage: ./WaveformPlayer FILE [OPTION]" << std::endl;
 		std::cout << "Try './WaveformPlayer -help' for details" << std::endl;
@@ -24,11 +44,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	try {
+
 		WAVFile theFile{argv[1]};
+#endif
 		bool spec = true;
 		int window = 2048;
 		int overlap = 1024;
 		bool use_hann = true;
+#ifndef __EMSCRIPTEN__
 		if (argc >= 3) {
 			if (strcmp(argv[2], "-debug") == 0) {
 				std::cout << "Generating logs ..." << std::endl;
@@ -68,6 +91,7 @@ int main(int argc, char* argv[]) {
 				use_hann = (c == 'y');
 			}
 		}
+#endif
 		if (spec) {
 			theFile.calculateSpectrogram(window, overlap, use_hann);
 		}
@@ -79,6 +103,12 @@ int main(int argc, char* argv[]) {
 	} catch (char const *e) {
 		std::cout << e << std::endl;
 	}
-	
+#ifdef __EMSCRIPTEN__
+	ESM_ASM(
+		play_pressed = false;
+		finished = false;
+	);
+}
+#endif
 	return 0;
 }
