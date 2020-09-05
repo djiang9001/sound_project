@@ -4,6 +4,7 @@
 #include <emscripten.h>
 #include <emscripten/html5.h>
 #include "fftw3.h"
+#include "curses.h"
 
 EM_BOOL play(double time, void* userData) {
   double x = EM_ASM_DOUBLE({
@@ -33,6 +34,9 @@ EM_BOOL play(double time, void* userData) {
   }
   //puts("one iteration");
   // Return true to keep the loop running.
+  move(10, 10);
+  addstr("test");
+  refresh();
   return EM_TRUE;
 }
 
@@ -42,6 +46,12 @@ int main() {
 	fftw_complex in[N], out[N];
 	fftw_plan p;
 	p = fftw_plan_dft_1d(N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+	initscr();
+	cbreak();
+	noecho();
+	nodelay(stdscr, TRUE);
+	keypad(stdscr, TRUE);
+	curs_set(1);
 	emscripten_request_animation_frame_loop(play, 0);
 	return 0;
 }
