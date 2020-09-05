@@ -37,6 +37,7 @@ EM_BOOL play(double time, void* userData) {
   move(10, 10);
   addstr("test");
   refresh();
+  getch();
   return EM_TRUE;
 }
 
