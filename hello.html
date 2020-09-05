@@ -3,6 +3,8 @@
 <script src="./howler.min.js"></script>
 <script>
 	var sound;
+	var play_pressed = false;
+	var finished = false;
 	function play() {
 		if (document.getElementById('wav_file').files.length != 0) {
 			var file = document.getElementById('wav_file').files[0];
@@ -13,13 +15,22 @@
 					src: data,
 					format: file.name.split('.').pop().toLowerCase()
 				});
-				sound.play();
+				// Clear listener after first call.
+				sound.once('load', function(){
+					sound.play();
+				});
+
+				// Fires when the sound finishes playing.
+				sound.once('end', function(){
+					finished = true;
+				});
 			});
 			reader.readAsDataURL(file);
 			var reader_binary = new FileReader();
 			reader_binary.addEventListener('load', function() {
 				var data_binary = reader_binary.result;
-				FS.writeFile('theFile', data_binary);
+				FS.writeFile('your_wav_file', data_binary);
+				play_pressed = true;
 			});
 			reader_binary.readAsBinaryString(file);
 		}
