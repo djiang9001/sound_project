@@ -11,6 +11,12 @@
 int main(int argc, char* argv[]) {
 	freopen("logError.txt", "w", stderr);
 #ifdef __EMSCRIPTEN__
+
+	std::cout << "This is a web demo of a simplified version of WaveformPlayer. It runs WaveformPlayer on a provided WAV file with default options." << std::endl;
+	std::cout << "The main project can be found at https://github.com/djiang9001/sound_project" << std::endl;
+	std::cout << "The spectrogram uses window = 2048, overlap = 1024, with Hann windowing." << std::endl;
+	std::cout << "It may take a while to load your file and calculate the spectrogram depending on its size, so please be patient." << std::endl;
+
 	while (true) {
 		// make sure "your_wav_file" is defined before running the next line
 		int wav_loaded_c = 0;
