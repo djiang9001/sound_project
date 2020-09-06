@@ -7,17 +7,6 @@
 #include "WAVFile.h"
 #include "WAVPlayer.h"
 
-#ifdef __EMSCRIPTEN__
-
-WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->numChannels}, 
-				sampleRate{theFile->sampleRate}, blockAlign{theFile->blockAlign}, 
-				bytesPerSample{theFile->bytesPerSample}, 
-				currentData{0, theFile->sampleRate} {
-	display = nullptr;
-}
-
-#else
-
 WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->numChannels}, 
 				sampleRate{theFile->sampleRate}, blockAlign{theFile->blockAlign}, 
 				bytesPerSample{theFile->bytesPerSample}, 
@@ -25,44 +14,44 @@ WAVPlayer::WAVPlayer(WAVFile *theFile): theFile{theFile}, numChannels{theFile->n
 	display = nullptr;
 }
 
-#endif
-
 int WAVPlayer::getSampleNumber() {
 	return currentData.currentDataIndex / (blockAlign / bytesPerSample);
 }
 
 #ifdef __EMSCRIPTEN__
 
-EM_BOOL WAVPlayer::iteration(double time, void* data) {
-	dataStruct *theData = static_cast<dataStruct*>(data);
-	double currentTime = EM_ASM_DOUBLE({
+void WAVPlayer::play() {
+	EM_ASM(
+		sound.play();
+	);
+	int is_finished = 0;
+	while (!is_finished && !display->getQuit()) {
+		double currentTime = EM_ASM_DOUBLE({
 			return sound.seek();
-	});
-	double latency = EM_ASM_DOUBLE({
-		if (typeof Howler.ctx != = 'undefined') {
-			if (typeof Howler.ctx.outputLatency != = 'undefined') {
-				return Howler.ctx.outputLatency;
-			} else if (typeof Howler.ctx.baseLatency != = 'undefined') {
-				return Howler.ctx.baseLatency;
-			}
-		}
+		});
+		double latency = EM_ASM_DOUBLE({
+				if (Howler && Howler.ctx) {
+					if (Howler.ctx.outputLatency) {
+						return Howler.ctx.outputLatency;
+					} else if (Howler.ctx.baseLatency) {
+						return Howler.ctx.baseLatency;
+					}
+				}
 		return 0.0;
-	});
-	theData->currentDataIndex = currentTime * sampleRate;
-	display->setLatency(latency);
-	display->update(getSampleNumber());
-	int is_finished = EM_ASM_INT({
+		});
+		currentData.currentDataIndex = currentTime * sampleRate * numChannels;
+		display->setLatency(latency);
+		display->update(getSampleNumber());
+		is_finished = EM_ASM_INT({
 			return finished;
 		});
-	if (finished) {
-		return EM_FALSE;
-	} else {
-		return EM_TRUE;
+		emscripten_sleep(10);
 	}
-}
-
-void WAVPlayer::play() {
-	emscripten_request_animation_frame_loop(iteration, &currentData);
+	EM_ASM(
+		Howler.stop();
+		wav_loaded = false;
+		finished = false;
+	);
 }
 
 #else

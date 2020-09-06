@@ -7,33 +7,29 @@
 #include "WAVPlayer.h"
 #include "WaveformDisplay.h"
 
-#ifdef __EMSCRIPTEN__
-
-EM_BOOL wait_for_play(double time, void* data) {
-	int play_pressed = EM_ASM_INT({
-			return play_pressed;
-		});
-	if (play_pressed) {
-		return EM_FALSE:
-	} else {
-		return EM_TRUE;
-	}
-}
-
-#endif
 
 int main(int argc, char* argv[]) {
 	freopen("logError.txt", "w", stderr);
 #ifdef __EMSCRIPTEN__
 	while (true) {
-	emscripten_request_animation_frame_loop(wait_for_play, nullptr);
-	WAVFile theFile{ "your_wav_file" };
+		// make sure "your_wav_file" is defined before running the next line
+		int wav_loaded_c = 0;
+		while (!wav_loaded_c) {
+			wav_loaded_c = EM_ASM_INT({
+				return wav_loaded;
+				});
+			emscripten_sleep(100);
+		}
+		WAVFile theFile{ "your_wav_file" };
+
+		try {
 #else
 	if (argc < 2) {
 		std::cout << "Usage: ./WaveformPlayer FILE [OPTION]" << std::endl;
 		std::cout << "Try './WaveformPlayer -help' for details" << std::endl;
 		return 1;
-	} else if (strcmp(argv[1], "-help") == 0) {
+	}
+	else if (strcmp(argv[1], "-help") == 0) {
 		std::cout << "This program plays a .wav file and displays some visuals. Press 'q' to stop playing. This program calculates an entire spectrogram for the file, which can take a lot of RAM (a 4 minute 2-channel file at 44100 Hz with window = 4096 and overlap = 2048 took about 2.2 GB. Disable the spectrum by using the option '-nospec' to use less RAM." << std::endl;
 		std::cout << "Options:" << std::endl;
 		std::cout << "  -debug : Generates logs for data of the WAV file. 'logNormData.txt' contains the data chunk normalized, 'logHeader.txt' contains header information, 'logRawBytes.txt' displays the data chunk in hex, and 'logNumData.txt' displays the data chunk numerically." << std::endl;
@@ -45,42 +41,47 @@ int main(int argc, char* argv[]) {
 
 	try {
 
-		WAVFile theFile{argv[1]};
+		WAVFile theFile{ argv[1] };
 #endif
+
 		bool spec = true;
 		int window = 2048;
 		int overlap = 1024;
 		bool use_hann = true;
+
 #ifndef __EMSCRIPTEN__
+
 		if (argc >= 3) {
 			if (strcmp(argv[2], "-debug") == 0) {
 				std::cout << "Generating logs ..." << std::endl;
 				std::cout << "Generating logNormData.txt ..." << std::endl;
-				std::ofstream normData{"logNormData.txt"};
+				std::ofstream normData{ "logNormData.txt" };
 				normData << argv[1] << std::endl;
 				theFile.printNormData(normData);
 				normData.close();
-				
+
 				std::cout << "Generating logHeader.txt ..." << std::endl;
-				std::ofstream header{"logHeader.txt"};
+				std::ofstream header{ "logHeader.txt" };
 				header << argv[1] << std::endl;
 				theFile.printHeader(header);
 				header.close();
-				
+
 				std::cout << "Generating logRawBytes.txt ..." << std::endl;
-				std::ofstream rawBytes{"logRawBytes.txt"};
+				std::ofstream rawBytes{ "logRawBytes.txt" };
 				rawBytes << argv[1] << std::endl;
 				theFile.printData(rawBytes);
 				rawBytes.close();
-				
+
 				std::cout << "Generating logNumData.txt ..." << std::endl;
-				std::ofstream numData{"logNumData.txt"};
+				std::ofstream numData{ "logNumData.txt" };
 				numData << argv[1] << std::endl;
 				theFile.printNumData(numData);
 				numData.close();
-			} else if (strcmp(argv[2], "-nospec") == 0) {
+			}
+			else if (strcmp(argv[2], "-nospec") == 0) {
 				spec = false;
-			} else if (strcmp(argv[2], "-custom_spec") == 0) {
+			}
+			else if (strcmp(argv[2], "-custom_spec") == 0) {
 				std::cout << "Enter window:" << std::endl;
 				std::cin >> window;
 				std::cout << "Enter overlap:" << std::endl;
@@ -91,24 +92,24 @@ int main(int argc, char* argv[]) {
 				use_hann = (c == 'y');
 			}
 		}
+
 #endif
+
 		if (spec) {
 			theFile.calculateSpectrogram(window, overlap, use_hann);
 		}
-		WAVPlayer player{&theFile};
-		WaveformDisplay display{&theFile, &player};
+		WAVPlayer player{ &theFile };
+		WaveformDisplay display{ &theFile, &player };
 		player.display = &display;
 		player.play();
 
-	} catch (char const *e) {
+	}
+	catch (char const *e) {
 		std::cout << e << std::endl;
 	}
 #ifdef __EMSCRIPTEN__
-	ESM_ASM(
-		play_pressed = false;
-		finished = false;
-	);
 }
 #endif
+
 	return 0;
 }

@@ -18,17 +18,6 @@
 class Display;
 struct WAVFile;
 
-#ifdef __EMSCRIPTEN__
-
-struct dataStruct {
-
-	uint32_t currentDataIndex;
-	uint32_t sampleRate;
-
-};
-
-#else
-
 struct dataStruct {
 	
 	uint32_t currentDataIndex;
@@ -36,8 +25,6 @@ struct dataStruct {
 	std::vector<double> *data;
 
 };
-
-#endif
 
 class WAVPlayer {	
 
@@ -50,11 +37,7 @@ class WAVPlayer {
 
 	dataStruct currentData;
 
-#ifdef __EMSCRIPTEN__
-
-	static EM_BOOL iteration(double time, void *data);
-
-#else
+#ifndef __EMSCRIPTEN__
 
 	static int patestCallback(const void *inputBuffer, void *outputBuffer,
                                 unsigned long framesPerBuffer,
