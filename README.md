@@ -2,7 +2,7 @@
 
 This is a personal project for parsing, playing, and processing WAV files. Currently, the WaveformPlayer application plays a WAV file while displaying a spectrum visualization.
 
-You can try a demo of WaveformPlayer on the web here: 
+You can try a demo of WaveformPlayer on the web here: https://djiang9001.github.io/sound_project/
 
 ## Libraries
 
