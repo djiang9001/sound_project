@@ -2,9 +2,13 @@
 
 This is a personal project for parsing, playing, and processing WAV files. Currently, the WaveformPlayer application plays a WAV file while displaying a spectrum visualization.
 
+You can try a demo of WaveformPlayer on the web here: 
+
 ## Libraries
 
 WaveformPlayer uses the libraries Portaudio, NCurses (PDCurses for Windows), and FFTW. See the build instructions below for information on how to configure these libraries. I've tested on Windows and certain distros of Linux, but theoretically it should be able to be built on MacOS as well.
+
+The web demo was ported by compiling PDCurses for SDL2, FFTW, and the main project files with Emscripten. Howler.js was used to replace Portaudio. You can quickly build it by running `emcc ../*.cc libfftw3.a pdcurses.a -I./ -s WASM=1 -s USE_SDL=2  -s ASYNCIFY -s ALLOW_MEMORY_GROWTH=1 --shell-file shell_minimal.html -o index.html` in the `browser` directory of this repo.
 
 ## WaveformPlayer
 
@@ -12,7 +16,7 @@ WaveformPlayer is a console application that plays a WAV file and displays a spe
 
 `Usage: ./WaveformPlayer FILE [OPTION]`
 
-To run on Windows:
+To run on Windows (must use a console compatible with PDCurses build for Windows Console):
 
 `Usage: WaveformPlayer.exe FILE [OPTION]`
 
@@ -57,6 +61,10 @@ If playback doesn't start on Linux systems that use PulseAudio, try commenting o
 
 WaveformPlayer comes prebuilt for Windows x86 and x64. The .exe files are located in `windows/Win32` and `windows/x64`, and are ready to use.
 
-These were built with Windows 10.0.17763.0 SDK. PortAudio was built with support for MME, DirectSound, WASAPI, WDM/KS, but not ASIO (see http://portaudio.com/docs/v19-doxydocs/compile_windows.html for more info on building PortAudio for Windows). PDCurses was built following instructions here: https://github.com/wmcbrine/PDCurses/blob/master/wincon/README.md. I used the precompiled FFTW .dll files from http://www.fftw.org/install/windows.html.
+These were built with Windows 10.0.17763.0 SDK. PortAudio was built with support for MME, DirectSound, WASAPI, WDM/KS, but not ASIO (see http://portaudio.com/docs/v19-doxydocs/compile_windows.html for more info on building PortAudio for Windows).
+
+PDCurses was built for Windows Console following instructions here: https://github.com/wmcbrine/PDCurses/blob/master/wincon/README.md.
+
+I used the precompiled FFTW .dll files from http://www.fftw.org/install/windows.html.
 
 If you want to build it yourself, the provided .sln file can be used to open the project with Microsoft Visual Studio with relative paths set up, so you can just use the "Build Solution" button.
