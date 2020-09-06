@@ -3,9 +3,9 @@
 <script src="./howler.min.js"></script>
 <script>
 	var sound;
-	var play_pressed = false;
+	var wav_loaded = false;
 	var finished = false;
-	function play() {
+	function load_wav() {
 		if (document.getElementById('wav_file').files.length != 0) {
 			var file = document.getElementById('wav_file').files[0];
 			var reader = new FileReader();
@@ -15,11 +15,6 @@
 					src: data,
 					format: file.name.split('.').pop().toLowerCase()
 				});
-				// Clear listener after first call.
-				sound.once('load', function(){
-					sound.play();
-				});
-
 				// Fires when the sound finishes playing.
 				sound.once('end', function(){
 					finished = true;
@@ -29,10 +24,11 @@
 			var reader_binary = new FileReader();
 			reader_binary.addEventListener('load', function() {
 				var data_binary = reader_binary.result;
-				FS.writeFile('your_wav_file', data_binary);
-				play_pressed = true;
+				var data_to_write = new Int8Array(data_binary);
+				FS.writeFile('your_wav_file', data_to_write);
+				wav_loaded = true;
 			});
-			reader_binary.readAsBinaryString(file);
+			reader_binary.readAsArrayBuffer(file);
 		}
 	}
 </script>
@@ -94,12 +90,14 @@
     </div>
     <hr/>
     <div class="emscripten">
-      <input type="checkbox" id="resize">Resize canvas
+      <!--
+	  <input type="checkbox" id="resize">Resize canvas
       <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
       &nbsp;&nbsp;&nbsp;
       <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
                                                                                 document.getElementById('resize').checked)">
-	  <input type="button" value="Play" onclick="play()">
+	  -->
+	  <input type="button" value="Play" onclick="load_wav()">
 	  <input type="file" id="wav_file" name="wav_file" accept="audio/wav">
     </div>
     

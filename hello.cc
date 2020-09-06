@@ -26,23 +26,15 @@ EM_BOOL play(double time, void* userData) {
 			return 0.0;
 		});
   //std::cout << std::to_string(y) << std::endl;
-  std::ifstream f("your_wav_file");
-  if (f.is_open()) {
-	  //std::cout << "open" << std::endl;
-  } else {
-	  //std::cout << "not open" << std::endl;
-  }
   //puts("one iteration");
   // Return true to keep the loop running.
-  move(10, 10);
-  addstr("test");
-  refresh();
-  getch();
   return EM_TRUE;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
 	std::cout << "Hello World" << std::endl;
+	freopen("logError.txt", "w", stderr);
+	std::cerr << "error" << std::endl;
 	int N = 999;
 	fftw_complex in[N], out[N];
 	fftw_plan p;
@@ -53,6 +45,27 @@ int main() {
 	nodelay(stdscr, TRUE);
 	keypad(stdscr, TRUE);
 	curs_set(1);
+	move(10, 10);
+	addstr("test");
+	refresh();
+	getch();
+	int wav_loaded_c = 0;
+	while (!wav_loaded_c) {
+		wav_loaded_c = EM_ASM_INT({
+			return wav_loaded;
+		});
+		getch();
+		emscripten_sleep(100);
+	}
+	EM_ASM(
+		sound.play();
+	);
+	std::ifstream f("your_wav_file");
+	char chunkID[4];
+	for (int i = 0; i < 50; ++i) {
+		f.read((char*)&chunkID, 4);
+		std::cout.write(chunkID, 4) << std::endl;
+	}
 	emscripten_request_animation_frame_loop(play, 0);
 	return 0;
 }
