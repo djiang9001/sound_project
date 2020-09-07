@@ -6,7 +6,7 @@ You can try a demo of WaveformPlayer on the web here: https://djiang9001.github.
 
 ## Libraries
 
-WaveformPlayer uses the libraries Portaudio, NCurses (PDCurses for Windows), and FFTW. See the build instructions below for information on how to configure these libraries. I've tested on Windows and certain distros of Linux, but theoretically it should be able to be built on MacOS as well.
+WaveformPlayer uses the libraries Portaudio, NCurses (PDCurses for Windows), and FFTW (3.3.5 for windows, 3.3.8 for web). See the build instructions below for information on how to configure these libraries. I've tested on Windows and certain distros of Linux, but theoretically it should be able to be built on MacOS as well.
 
 The web demo was ported by compiling PDCurses for SDL2, and the main project files with Emscripten. Howler.js was used to replace Portaudio. You can quickly build it by running `emcc ../*.cc libfftw3.a pdcurses.a -I./ -s WASM=1 -s USE_SDL=2  -s ASYNCIFY -s ALLOW_MEMORY_GROWTH=1 --shell-file shell_minimal.html -o index.html` in the `browser` directory of this repo.
 
@@ -69,6 +69,6 @@ These were built with Windows 10.0.17763.0 SDK. PortAudio was built with support
 
 PDCurses was built for Windows Console following instructions here: https://github.com/wmcbrine/PDCurses/blob/master/wincon/README.md.
 
-I used the precompiled FFTW 3.3.8 .dll files from http://www.fftw.org/install/windows.html.
+I used the precompiled FFTW 3.3.5 .dll files from http://www.fftw.org/install/windows.html.
 
 If you want to build it yourself, the provided .sln file can be used to open the project with Microsoft Visual Studio with relative paths set up, so you can just use the "Build Solution" button.
